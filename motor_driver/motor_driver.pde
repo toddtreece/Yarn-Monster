@@ -42,6 +42,9 @@ int inByte = -1;
 char inString[2];
 int stringPos = 0;
 
+char buffer[4];
+int received;
+
 void setup(){
 	mySerial.begin(9600);
 	Serial.begin(9600);
@@ -55,13 +58,14 @@ void setup(){
 	digitalWrite(ms2, ms2_state(resolution));
 }
 
-void loop(){
-	if (mySerial.available()>0){
-		//Serial.print((char)mySerial.read());
-		int value = handleSerial();
-		if(value > 0){
-			Serial.println(value);
-			//set_speed(value);
+void loop() {
+	if (mySerial.available()) {
+		buffer[received++] = mySerial.read();
+		buffer[received] = '\0';
+		if (received >= (sizeof(buffer)-1)) {
+			//Serial.print(buffer);
+			int myInt = atoi(buffer);
+			received = 0;
 		}
 	}
 }
@@ -73,21 +77,6 @@ void set_speed(int val){
 	digitalWrite(stepper, LOW);
 	digitalWrite(stepper, HIGH);
 	delayMicroseconds(val);
-}
-
-int handleSerial() {
-	char * inputBytesPtr = inString;
-	inByte = (char)mySerial.read();
-	if((inByte >= '0') && (inByte <= '9')) {
-		inString[stringPos] = inByte;
-		stringPos++;
-	} else if(inByte == 10) {
-		memset( &inString, 0, 6 );
-		stringPos=0;
-		return atoi(inputBytesPtr);
-	} else{
-		return -1;
-	}
 }
 
 int ms1_state(int state){

@@ -27,6 +27,7 @@
 // 
 
 #include <NewSoftSerial.h>
+#include <Messenger.h>
 NewSoftSerial mySerial =  NewSoftSerial(6, 5);
 
 int dir = 10;
@@ -37,17 +38,26 @@ int sleep = 13;
 int pot = 2;
 int potval = 0;
 int resolution = 2;
-int lastSensorReading = 0;
-int inByte = -1;
-char inString[2];
-int stringPos = 0;
 
-char buffer[4];
-int received;
+int id = 0;
+int last = 0;
+Messenger message = Messenger();
+
+void messageReady() {
+  while ( message.available() ) {
+    id = message.readInt();
+    if(id >= 0 && id < 1025) {
+      //Serial.println(id);
+      if(id > (last + 20) || id < (last - 20)){
+        set_speed(id);
+      }
+    }
+  }
+}
 
 void setup(){
-	mySerial.begin(9600);
-	Serial.begin(9600);
+	mySerial.begin(115200);
+	Serial.begin(115200);
 	pinMode(dir, OUTPUT);
 	pinMode(stepper, OUTPUT);
 	pinMode(ms1, OUTPUT);
@@ -56,19 +66,14 @@ void setup(){
 	digitalWrite(sleep, HIGH);
 	digitalWrite(ms1, ms1_state(resolution));
 	digitalWrite(ms2, ms2_state(resolution));
+        message.attach(messageReady);
 }
 
 void loop() {
-	if (mySerial.available()) {
-		buffer[received++] = mySerial.read();
-		buffer[received] = '\0';
-		if (received >= (sizeof(buffer)-1)) {
-			//Serial.print(buffer);
-			int myInt = atoi(buffer);
-			received = 0;
-		}
-	}
-}
+   while (mySerial.available()){
+     message.process(mySerial.read());
+   }
+} 
 
 void set_speed(int val){
 	val = val + 1;

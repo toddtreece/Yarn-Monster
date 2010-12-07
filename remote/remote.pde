@@ -33,11 +33,11 @@ int pot = 2;
 int potval = 0;
 
 void setup()  {
-mySerial.begin(9600);
+  mySerial.begin(9600);
 }
 
 void loop() {
-potval = analogRead(pot);
-mySerial.println(potval);
-delay(500);
+  potval = analogRead(pot);
+  mySerial.println(potval);
+  delay(500);
 }

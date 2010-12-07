@@ -50,74 +50,72 @@ void messageReady() {
 }
 
 void setup(){
-	mySerial.begin(9600);
-	Serial.begin(9600);
-	pinMode(dir, OUTPUT);
-	pinMode(stepper, OUTPUT);
-	pinMode(ms1, OUTPUT);
-	pinMode(ms2, OUTPUT);
-	pinMode(sleep, OUTPUT);
-	digitalWrite(sleep, HIGH);
-	digitalWrite(ms1, ms1_state(resolution));
-	digitalWrite(ms2, ms2_state(resolution));
-        message.attach(messageReady);
+  mySerial.begin(9600);
+  Serial.begin(9600);
+  pinMode(dir, OUTPUT);
+  pinMode(stepper, OUTPUT);
+  pinMode(ms1, OUTPUT);
+  pinMode(ms2, OUTPUT);
+  pinMode(sleep, OUTPUT);
+  digitalWrite(sleep, HIGH);
+  digitalWrite(ms1, ms1_state(resolution));
+  digitalWrite(ms2, ms2_state(resolution));
+  message.attach(messageReady);
 }
 
 void loop() {
-   while (mySerial.available()){
-     message.process(mySerial.read());
-   }
-   set_speed(id);
+  while (mySerial.available()){
+    message.process(mySerial.read());
+  }
+  set_speed(id);
 } 
 
 void set_speed(int val){
-        if(val < 10) {
-          digitalWrite(sleep, LOW);
-        } else {
-          val = 1600 - val;
-  	digitalWrite(sleep, HIGH);
-  	digitalWrite(dir, LOW);
-  	digitalWrite(stepper, LOW);
-  	digitalWrite(stepper, HIGH);
-  	delayMicroseconds(val);
-        }
-	
+  if(val < 10) {
+    digitalWrite(sleep, LOW);
+  } else {
+    val = 1600 - val;
+    digitalWrite(sleep, HIGH);
+    digitalWrite(dir, LOW);
+    digitalWrite(stepper, LOW);
+    digitalWrite(stepper, HIGH);
+    delayMicroseconds(val);
+  }
 }
 
 int ms1_state(int state){
-	switch(state){
-		case 1:
-			state = 0;
-			break;
-		case 2:
-			state = 1;
-			break;
-		case 3:
-			state = 0;
-			break;
-		case 4:
-			state = 1;
-			break;
-	}
-	return state;
+  switch(state){
+    case 1:
+      state = 0;
+      break;
+    case 2:
+      state = 1;
+      break;
+     case 3:
+       state = 0;
+       break;
+     case 4:
+       state = 1;
+       break;
+  }
+  return state;
 }
 
 
 int ms2_state(int state){              
-	switch(state){                                       
-		case 1:
-			state = 0;
-			break;
-		case 2:
-			state = 0;
-			break;
-		case 3:
-			state = 1;
-			break;
-		case 4:
-			state = 1;
-			break;
-	}
-	return state;
+  switch(state){                                       
+    case 1:
+      state = 0;
+      break;
+    case 2:
+      state = 0;
+      break;
+    case 3:
+      state = 1;
+      break;
+    case 4:
+      state = 1;
+    break;
+  }
+  return state;
 }
-

@@ -39,4 +39,5 @@ void setup()  {
 void loop() {
 	potval = analogRead(pot);
 	mySerial.println(potval);
+        delay(500);
 }

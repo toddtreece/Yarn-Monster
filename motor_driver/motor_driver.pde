@@ -46,18 +46,12 @@ Messenger message = Messenger();
 void messageReady() {
   while ( message.available() ) {
     id = message.readInt();
-    if(id >= 0 && id < 1025) {
-      //Serial.println(id);
-      if(id > (last + 20) || id < (last - 20)){
-        set_speed(id);
-      }
-    }
   }
 }
 
 void setup(){
-	mySerial.begin(115200);
-	Serial.begin(115200);
+	mySerial.begin(9600);
+	Serial.begin(9600);
 	pinMode(dir, OUTPUT);
 	pinMode(stepper, OUTPUT);
 	pinMode(ms1, OUTPUT);
@@ -73,15 +67,21 @@ void loop() {
    while (mySerial.available()){
      message.process(mySerial.read());
    }
+   set_speed(id);
 } 
 
 void set_speed(int val){
-	val = val + 1;
-	digitalWrite(sleep, HIGH);
-	digitalWrite(dir, LOW);
-	digitalWrite(stepper, LOW);
-	digitalWrite(stepper, HIGH);
-	delayMicroseconds(val);
+        if(val < 10) {
+          digitalWrite(sleep, LOW);
+        } else {
+          val = 1600 - val;
+  	digitalWrite(sleep, HIGH);
+  	digitalWrite(dir, LOW);
+  	digitalWrite(stepper, LOW);
+  	digitalWrite(stepper, HIGH);
+  	delayMicroseconds(val);
+        }
+	
 }
 
 int ms1_state(int state){

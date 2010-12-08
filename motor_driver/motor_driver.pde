@@ -28,24 +28,24 @@
 
 #include <NewSoftSerial.h>
 #include <Messenger.h>
-NewSoftSerial mySerial =  NewSoftSerial(6, 5);
 
+NewSoftSerial xbee =  NewSoftSerial(6, 5);
+Messenger message = Messenger();
+
+// pin definitions
 int dir = 10;
 int stepper = 11;
 int ms1 = 12;
 int ms2 = 9;
 int sleep = 13;
-int pot = 2;
-int potval = 0;
-int resolution = 2;
 
-int id = 0;
-int last = 0;
-Messenger message = Messenger();
+// variable definitions
+int resolution = 2;
+int current_speed = 0;
+
 
 void setup(){
-  mySerial.begin(9600);
-  Serial.begin(9600);
+  xbee.begin(9600);
   pinMode(dir, OUTPUT);
   pinMode(stepper, OUTPUT);
   pinMode(ms1, OUTPUT);
@@ -58,15 +58,15 @@ void setup(){
 }
 
 void loop() {
-  while (mySerial.available()){
-    message.process(mySerial.read());
+  while (xbee.available()){
+    message.process(xbee.read());
   }
-  set_speed(id);
+  set_speed(current_speed);
 } 
 
 void message_ready() {
   while ( message.available() ) {
-    id = message.readInt();
+    current_speed = message.readInt();
   }
 }
 

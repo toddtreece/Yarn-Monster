@@ -28,16 +28,17 @@
 
 #include <NewSoftSerial.h>
 
-NewSoftSerial mySerial =  NewSoftSerial(11, 10);
+NewSoftSerial xbee =  NewSoftSerial(11, 10);
+
 int pot = 2;
 int potval = 0;
 
 void setup()  {
-  mySerial.begin(9600);
+  xbee.begin(9600);
 }
 
 void loop() {
   potval = analogRead(pot);
-  mySerial.println(potval);
+  xbee.println(potval);
   delay(500);
 }

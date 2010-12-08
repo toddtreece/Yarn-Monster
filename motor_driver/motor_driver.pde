@@ -43,12 +43,6 @@ int id = 0;
 int last = 0;
 Messenger message = Messenger();
 
-void messageReady() {
-  while ( message.available() ) {
-    id = message.readInt();
-  }
-}
-
 void setup(){
   mySerial.begin(9600);
   Serial.begin(9600);
@@ -60,7 +54,7 @@ void setup(){
   digitalWrite(sleep, HIGH);
   digitalWrite(ms1, ms1_state(resolution));
   digitalWrite(ms2, ms2_state(resolution));
-  message.attach(messageReady);
+  message.attach(message_ready);
 }
 
 void loop() {
@@ -69,6 +63,12 @@ void loop() {
   }
   set_speed(id);
 } 
+
+void message_ready() {
+  while ( message.available() ) {
+    id = message.readInt();
+  }
+}
 
 void set_speed(int val){
   if(val < 10) {

@@ -30,15 +30,29 @@
 
 NewSoftSerial xbee =  NewSoftSerial(11, 10);
 
+// pin definitions
 int pot = 2;
+int dirswitch = 4;
+
+// variable definitions
 int potval = 0;
+int switchval;
 
 void setup()  {
   xbee.begin(9600);
+  pinMode(dirswitch, INPUT);
 }
 
 void loop() {
   potval = analogRead(pot);
+  switchval = digitalRead(dirswitch);
   xbee.println(potval);
-  delay(500);
+  delay(250);
+  switchval = digitalRead(dirswitch);
+  if(switchval == HIGH) {
+    xbee.println(2001);
+  } else {
+    xbee.println(2000);
+  }
+  delay(250);
 }

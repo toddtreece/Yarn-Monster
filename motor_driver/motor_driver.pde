@@ -65,7 +65,7 @@ void loop() {
 } 
 
 void message_ready() {
-  while ( message.available() ) {
+  while (message.available()) {
     current_speed = message.readInt();
   }
 }

@@ -28,6 +28,7 @@
 
 #include <NewSoftSerial.h>
 #include <Messenger.h>
+#include <pt.h>
 
 NewSoftSerial xbee =  NewSoftSerial(6, 5);
 Messenger message = Messenger();
@@ -41,8 +42,11 @@ int sleep = 13;
 
 // variable definitions
 int resolution = 2;
-int current_speed = 0;
-
+int current_val = 0;
+int motor_speed = 0;
+int motor_dir = HIGH;
+static long nextMillis = 0;
+static struct pt thread;
 
 void setup(){
   xbee.begin(9600);
@@ -55,32 +59,44 @@ void setup(){
   digitalWrite(ms1, ms1_state(resolution));
   digitalWrite(ms2, ms2_state(resolution));
   message.attach(message_ready);
+  PT_INIT(&thread);
 }
 
 void loop() {
+  set_speed(&thread);
   while (xbee.available()){
     message.process(xbee.read());
   }
-  set_speed(current_speed);
 } 
 
 void message_ready() {
   while (message.available()) {
-    current_speed = message.readInt();
+    current_val = message.readInt();
+    if(current_val < 1025){
+		motor_speed = current_val;
+    } else if(current_val == 2000){
+		motor_dir = LOW;
+    } else if(current_val == 2001){
+		motor_dir = HIGH;
+    }
   }
 }
 
-void set_speed(int val){
-  if(val < 10) {
-    digitalWrite(sleep, LOW);
-  } else {
-    val = 1600 - val;
-    digitalWrite(sleep, HIGH);
-    digitalWrite(dir, LOW);
-    digitalWrite(stepper, LOW);
-    digitalWrite(stepper, HIGH);
-    delayMicroseconds(val);
+static int set_speed(struct pt *pt){	
+  PT_BEGIN(pt);
+  while (1) {
+    nextMillis = millis() + (1600- motor_speed);
+    PT_WAIT_UNTIL(pt, nextMillis < millis());
+	if(motor_speed < 10) {
+	  digitalWrite(sleep, LOW);
+	} else {
+	  digitalWrite(sleep, HIGH);
+	  digitalWrite(dir, motor_dir);
+	  digitalWrite(stepper, LOW);
+	  digitalWrite(stepper, HIGH);
+	}
   }
+  PT_END(pt);
 }
 
 int ms1_state(int state){

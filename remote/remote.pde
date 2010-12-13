@@ -37,6 +37,7 @@ int dirswitch = 4;
 // variable definitions
 int pot_current = 0;
 int pot_previous;
+int pot_change;
 int switch_current;
 int switch_previous;
 
@@ -48,19 +49,23 @@ void setup()  {
 void loop() {
   pot_current = analogRead(pot);
   if(pot_current != pot_previous){
-    pot_previous = pot_current;
-    xbee.println(pot_current);
-    delay(250);    
+    pot_change = pot_previous - pot_current;
+    pot_change = abs(pot_change);
+    if(pot_change > 10) {
+      pot_previous = pot_current;
+      xbee.println(pot_current);
+      delay(100);   
+    }
   }
   switch_current = digitalRead(dirswitch);
   if(switch_current == HIGH && switch_previous != HIGH) {
     switch_previous = HIGH;
     xbee.println(2001);
-    delay(250);
+    delay(100);
   } else if (switch_current == LOW && switch_previous != LOW) {
     switch_previous = LOW;
     xbee.println(2000);
-    delay(500);
+    delay(100);
   }
 }
 

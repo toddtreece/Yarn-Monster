@@ -46,7 +46,7 @@ int current_val = 0;
 int motor_speed = 0;
 int motor_dir = HIGH;
 static long nextMicros = 0;
-static struct pt thread;
+static struct pt thread, thread2;
 
 void setup(){
   xbee.begin(9600);
@@ -60,24 +60,32 @@ void setup(){
   digitalWrite(ms2, ms2_state(resolution));
   message.attach(message_ready);
   PT_INIT(&thread);
+  PT_INIT(&thread2);
 }
 
 void loop() {
   set_speed(&thread);
-  while (xbee.available()){
+  message_read(&thread2);
+}
+
+static int message_read(struct pt *pt){	
+  PT_BEGIN(pt);
+  while (1) {
+    PT_WAIT_UNTIL(pt, xbee.available());
     message.process(xbee.read());
   }
-} 
+  PT_END(pt);
+}
 
 void message_ready() {
   while (message.available()) {
     current_val = message.readInt();
     if(current_val < 1025){
-		motor_speed = current_val;
+      motor_speed = current_val;
     } else if(current_val == 2000){
-		motor_dir = LOW;
+      motor_dir = LOW;
     } else if(current_val == 2001){
-		motor_dir = HIGH;
+      motor_dir = HIGH;
     }
   }
 }
@@ -87,14 +95,14 @@ static int set_speed(struct pt *pt){
   while (1) {
     nextMicros = micros() + (1600 - motor_speed);
     PT_WAIT_UNTIL(pt, nextMicros < micros());
-	if(motor_speed < 10) {
-	  digitalWrite(sleep, LOW);
-	} else {
-	  digitalWrite(sleep, HIGH);
-	  digitalWrite(dir, motor_dir);
-	  digitalWrite(stepper, LOW);
-	  digitalWrite(stepper, HIGH);
-	}
+    if(motor_speed < 10) {
+      digitalWrite(sleep, LOW);
+    } else {
+      digitalWrite(sleep, HIGH);
+      digitalWrite(dir, motor_dir);
+      digitalWrite(stepper, LOW);
+      digitalWrite(stepper, HIGH);
+    }
   }
   PT_END(pt);
 }

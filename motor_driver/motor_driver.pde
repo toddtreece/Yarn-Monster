@@ -45,7 +45,7 @@ int resolution = 2;
 int current_val = 0;
 int motor_speed = 0;
 int motor_dir = HIGH;
-static long nextMillis = 0;
+static long nextMicros = 0;
 static struct pt thread;
 
 void setup(){
@@ -85,8 +85,8 @@ void message_ready() {
 static int set_speed(struct pt *pt){	
   PT_BEGIN(pt);
   while (1) {
-    nextMillis = millis() + (1600- motor_speed);
-    PT_WAIT_UNTIL(pt, nextMillis < millis());
+    nextMicros = micros() + (1600 - motor_speed);
+    PT_WAIT_UNTIL(pt, nextMicros < micros());
 	if(motor_speed < 10) {
 	  digitalWrite(sleep, LOW);
 	} else {

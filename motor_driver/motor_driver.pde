@@ -41,7 +41,7 @@ int ms2 = 9;
 int sleep = 13;
 
 // variable definitions
-int resolution = 2;
+int resolution = 1;
 int current_val = 0;
 int motor_speed = 0;
 int motor_dir = HIGH;
@@ -93,9 +93,9 @@ void message_ready() {
 static int set_speed(struct pt *pt){	
   PT_BEGIN(pt);
   while (1) {
-    nextMicros = micros() + (1600 - motor_speed);
+    nextMicros = micros() + (6000 - motor_speed);
     PT_WAIT_UNTIL(pt, nextMicros < micros());
-    if(motor_speed < 10) {
+    if(motor_speed < 1) {
       digitalWrite(sleep, LOW);
     } else {
       digitalWrite(sleep, HIGH);
